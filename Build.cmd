@@ -19,16 +19,16 @@ exit /b
 set GOOS=windows
 set file=Release/%app%_%GOOS%_%GOARCH%.exe
 echo Building %file%...
-go build -o %file% %app%.go
+go build -ldflags="-s -w" -o %file% %app%.go
 
 set GOOS=linux
 set file=Release/%app%_%GOOS%_%GOARCH%
 echo Building %file%...
-go build -o %file% %app%.go
+go build -ldflags="-s -w" -o %file% %app%.go
 
 set GOOS=darwin
 set file=Release/%app%_%GOOS%_%GOARCH%.app
 echo Building %file%...
-go build -o %file% %app%.go
+go build -ldflags="-s -w" -o %file% %app%.go
 
 exit /b
