@@ -21,12 +21,14 @@ func main() {
 	// Declare/initialize variables
 	var text string
 	console := bufio.NewReader(os.Stdin)
-	conn, _ := net.Dial("tcp", *hostPtr+":"+*portPtr)
+	conn, err := net.Dial("tcp", *hostPtr+":"+*portPtr)
+	if err != nil {os.Exit(1)}
 
 	// Authenticate connection to Tor
 	fmt.Fprintf(conn, "authenticate \""+*secretPtr+"\"\n")
-	text, _ = bufio.NewReader(conn).ReadString('\n')
-	if  strings.TrimRight(text, "\r\n") != "250 OK" {os.Exit(0)}
+	text, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {os.Exit(2)}
+	if  strings.TrimRight(text, "\r\n") != "250 OK" {os.Exit(3)}
 
 	// Initialize function for receiving and handling command output
 	receive := func() {
@@ -112,23 +114,23 @@ func main() {
 
 	// Announce Tor version as banner
 	fmt.Fprintf(conn, "getinfo version\n")
-	text, _ = bufio.NewReader(conn).ReadString('\n')
+	text, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {os.Exit(4)}
 	fmt.Print("Tor "+strings.TrimPrefix(text, "250-version="))
 	
 	for {
-
-		loop:
 		text = ""
 
 		// Command prompt
 		fmt.Print("> ")
-		text, _ = console.ReadString('\n')
+		text, err = console.ReadString('\n')
+		if err != nil {os.Exit(5)}
 
 		// Internal TorMon commands
 		switch strings.ToLower(strings.TrimRight(text, "\r\n")) {
 			case "help":
 				fmt.Print("getinfo config/names\ngetinfo signal/names\ngetinfo info/names\nquit\n")
-				goto loop
+				continue
 		}
 
 		// Send Tor command
